@@ -15,6 +15,7 @@ export const SimplicityEditor = () => {
   const [termData, setTermData] = useState(terms);
 
   const [editorValue, setEditorValue] = useState<Array<string>>([]);
+  const [terminalValue, setTerminalValue] = useState<string>("");
   const [result, setResult] = useState<string>();
 
   let disposeLanguageConfiguration = () => {};
@@ -23,8 +24,6 @@ export const SimplicityEditor = () => {
 
   useEffect(() => {
     if (monaco) {
-      console.log(termData);
-
       monaco.languages.register({ id: lng });
 
       monaco.editor.defineTheme("simplicityTheme", themeOptions);
@@ -67,7 +66,6 @@ export const SimplicityEditor = () => {
       filteredLines.forEach((fl) => {
         if (fl.includes(" := ")) {
           const index = termData.findIndex((object) => object.word === fl.split(" ")[0]);
-
           if (index === -1) {
             setTermData([...termData, { word: fl.split(" ")[0] }]);
           }
@@ -75,12 +73,20 @@ export const SimplicityEditor = () => {
       });
     }
   };
-  const onChangeEditorTwo = (value: string | undefined, ev: Monaco.editor.IModelContentChangedEvent) => {
+
+  const onChangeEditorTwo = (value: string | undefined, event: Monaco.editor.IModelContentChangedEvent) => {
     if (value) {
+      let lastLine = "";
       const lines: string = value;
       const newLines = lines.split("\n");
-      if (newLines.length > 1) {
-        setResult(newLines[0]);
+      if (event.changes[0].text.charCodeAt(0) === 10) {
+        lastLine = newLines[newLines.length - 2];
+        const cLine = lastLine.split(" ");
+        if (cLine[0] !== "run") {
+          setResult("ERROR");
+        } else {
+          setResult(cLine[1]);
+        }
       }
     }
   };
@@ -88,6 +94,7 @@ export const SimplicityEditor = () => {
   if (monaco != null) {
     return (
       <>
+        <EditorHeader>Editor</EditorHeader>
         <Editor
           key="editor-one"
           height="70vh"
@@ -97,19 +104,20 @@ export const SimplicityEditor = () => {
           options={editorOptions}
           language={lng}
         />
+
         <Wrapper>
           <Width60>
-            <Editor
-              key="editor-two"
-              height="70vh"
-              onChange={onChangeEditorTwo}
-              theme="simplicityTheme"
-              defaultValue="// let's write some broken code 😈"
-              options={editorOptions}
-              language={lng}
-            />
+            <EditorSection>
+              <EditorHeader>Terminal</EditorHeader>
+              <Editor key="editor-two" height="70vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={editorOptions} defaultValue="run" language={lng} />
+            </EditorSection>
           </Width60>
-          <Width40>{result}</Width40>
+          <Width40>
+            <EditorSection>
+              <EditorHeader>Output</EditorHeader>
+              {result}
+            </EditorSection>
+          </Width40>
         </Wrapper>
       </>
     );
@@ -138,4 +146,21 @@ const Width40 = styled.section`
   display: flex;
   width: 40%;
   color: orange;
+  font-size: 14px;
+`;
+
+const EditorHeader = styled.section`
+  background: rgb(77, 78, 79);
+  height: 0.7rem;
+  display: flex;
+  color: white;
+  font-size: 13px;
+  padding: 7px;
+  align-items: center;
+`;
+
+const EditorSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
