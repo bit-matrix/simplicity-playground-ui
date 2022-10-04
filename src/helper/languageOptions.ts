@@ -29,6 +29,14 @@ const languageConfigurations = (monaco: typeof Monaco.languages): Monaco.languag
     onEnterRules: [
       {
         // e.g. /** | */
+        beforeText: /./,
+        action: {
+          indentAction: monaco.IndentAction.IndentOutdent,
+          appendText: "run",
+        },
+      },
+      {
+        // e.g. /** | */
         beforeText: /^\s*\/\*\*(?!\/)([^*]|\*(?!\/))*$/,
         afterText: /^\s*\*\/$/,
         action: {
@@ -89,7 +97,7 @@ const tokenProviders: Monaco.languages.IMonarchLanguage = {
         /[a-zA-Z_][.a-zA-Z0-9_-]+/,
         {
           cases: {
-            "@terms": "opcode.terms",
+            "@terms": "simplicity.terms",
             "@default": "identifier",
           },
         },
