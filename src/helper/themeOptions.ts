@@ -6,7 +6,7 @@ const themeOptions: Monaco.editor.IStandaloneThemeData = {
   rules: [
     { token: "delimiter.evaluation", foreground: "#3c9dda" },
     { token: "delimiter.push", foreground: "#3c9dda" },
-    { token: "opcode.terms", foreground: "#d9daa2" },
+    { token: "simplicity.terms", foreground: "#d9daa2" },
     { token: "identifier", foreground: "#209be3" },
     { token: "literal.bigint", foreground: "#87edae" },
     { token: "literal.hex", foreground: "#034a03" },
