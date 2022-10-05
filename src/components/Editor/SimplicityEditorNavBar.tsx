@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import logo from "../../images/transparent_white.png";
 import GithubIcon from "../../images/Icons/Github";
@@ -7,10 +7,15 @@ import TelegramIcon from "../../images/Icons/Telegram";
 import TwitterIcon from "../../images/Icons/Twitter";
 import NpmIcon from "../../images/Icons/Npm";
 import HeartIcon from "../../images/Icons/Heart";
+import { SponsorModal } from "./SponsorModal";
+import { Tooltip, Whisper } from "rsuite";
 
 export const SimplicityEditorNavBar = () => {
+  const [showSponsorModal, setShowSponsorModal] = useState<boolean>(false);
+
   return (
     <ScriptEditorHeaderBar>
+      <SponsorModal show={showSponsorModal} close={() => setShowSponsorModal(false)}></SponsorModal>
       <ScriptEditorHeaderLeftSection>
         <ScriptWizLogo src={logo} alt="logo" />
 
@@ -29,7 +34,7 @@ export const SimplicityEditorNavBar = () => {
           <ScriptEditorHeaderIconItemText>Twitter</ScriptEditorHeaderIconItemText>
         </ScriptEditorHeaderIconItem>
 
-        <ScriptEditorHeaderIconItem href="https://medium.com/script-wizard">
+        <ScriptEditorHeaderIconItem href="https://medium.com/script-wizard" target="_blank">
           <MediumIcon width="0.85rem" height="0.85rem" />
           <ScriptEditorHeaderIconItemText>Medium</ScriptEditorHeaderIconItemText>
         </ScriptEditorHeaderIconItem>
@@ -41,9 +46,11 @@ export const SimplicityEditorNavBar = () => {
       </ScriptEditorHeaderLeftSection>
 
       <ScriptEditorHeaderRightSection>
-        <SponsorButton>
-          <HeartIcon fill="#FF69B4" width="1rem" height="1rem" />
-        </SponsorButton>
+        <Whisper placement="bottom" trigger="hover" speaker={<Tooltip>Become a sponsor</Tooltip>}>
+          <SponsorButton onClick={() => setShowSponsorModal(true)}>
+            <HeartIcon fill="#FF69B4" width="1rem" height="1rem" />
+          </SponsorButton>
+        </Whisper>
       </ScriptEditorHeaderRightSection>
     </ScriptEditorHeaderBar>
   );
