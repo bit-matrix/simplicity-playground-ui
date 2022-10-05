@@ -5,6 +5,7 @@ import styled from "styled-components";
 import editorOptions from "../../helper/editorOptions";
 import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
+import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
 
 export const SimplicityEditor = () => {
   const [lng] = useState("simplicity" + (Math.random() * 1000).toFixed(2));
@@ -15,7 +16,6 @@ export const SimplicityEditor = () => {
   const [termData, setTermData] = useState(terms);
 
   const [editorValue, setEditorValue] = useState<Array<string>>([]);
-  const [terminalValue, setTerminalValue] = useState<string>("");
   const [result, setResult] = useState<string>();
 
   let disposeLanguageConfiguration = () => {};
@@ -94,10 +94,11 @@ export const SimplicityEditor = () => {
   if (monaco != null) {
     return (
       <>
+        <SimplicityEditorNavBar />
         <EditorHeader>Editor</EditorHeader>
         <Editor
           key="editor-one"
-          height="70vh"
+          height="60vh"
           onChange={onChangeEditor}
           theme="simplicityTheme"
           defaultValue="// let's write some broken code 😈"
@@ -109,7 +110,7 @@ export const SimplicityEditor = () => {
           <Width60>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <Editor key="editor-two" height="70vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={editorOptions} defaultValue="run" language={lng} />
+              <Editor key="editor-two" height="70vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={editorOptions} defaultValue=">" language={lng} />
             </EditorSection>
           </Width60>
           <Width40>
