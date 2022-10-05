@@ -32,7 +32,7 @@ const languageConfigurations = (monaco: typeof Monaco.languages): Monaco.languag
         beforeText: /./,
         action: {
           indentAction: monaco.IndentAction.IndentOutdent,
-          appendText: "run",
+          appendText: ">",
         },
       },
       {
