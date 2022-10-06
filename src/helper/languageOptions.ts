@@ -29,14 +29,6 @@ const languageConfigurations = (monaco: typeof Monaco.languages): Monaco.languag
     onEnterRules: [
       {
         // e.g. /** | */
-        beforeText: /./,
-        action: {
-          indentAction: monaco.IndentAction.IndentOutdent,
-          appendText: ">",
-        },
-      },
-      {
-        // e.g. /** | */
         beforeText: /^\s*\/\*\*(?!\/)([^*]|\*(?!\/))*$/,
         afterText: /^\s*\*\/$/,
         action: {
