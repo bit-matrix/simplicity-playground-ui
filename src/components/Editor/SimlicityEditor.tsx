@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useEffect, useState } from "react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
 import Editor, { useMonaco } from "@monaco-editor/react";
@@ -5,10 +7,13 @@ import styled from "styled-components";
 import editorOptions from "../../helper/editorOptions";
 import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
+import * as terminalLanguageOptions from "../../helper/terminalLanguageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
+import terminalOptions from "../../helper/terminalOptions";
 
 export const SimplicityEditor = () => {
   const [lng] = useState("simplicity" + (Math.random() * 1000).toFixed(2));
+  const [terminalLng] = useState("simplicity" + (Math.random() * 1000).toFixed(2));
 
   const monaco = useMonaco();
   const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "case" }, { word: "injl" }, { word: "injr" }, { word: "take" }, { word: "drop" }, { word: "iden" }];
@@ -18,18 +23,24 @@ export const SimplicityEditor = () => {
   const [editorValue, setEditorValue] = useState<Array<string>>([]);
   const [result, setResult] = useState<string>();
 
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   let disposeLanguageConfiguration = () => {};
   let disposeMonarchTokensProvider = () => {};
   let disposeCompletionItemProvider = () => {};
 
+  let disposeLanguageConfiguration2 = () => {};
+  let disposeMonarchTokensProvider2 = () => {};
+  let disposeCompletionItemProvider2 = () => {};
+
   useEffect(() => {
     if (monaco) {
       monaco.languages.register({ id: lng });
+      monaco.languages.register({ id: terminalLng });
 
       monaco.editor.defineTheme("simplicityTheme", themeOptions);
 
       const { dispose: disposeSetLanguageConfiguration } = monaco.languages.setLanguageConfiguration(lng, languageOptions.languageConfigurations(monaco.languages));
-
       disposeLanguageConfiguration = disposeSetLanguageConfiguration;
 
       // Register a tokens provider for the language
@@ -43,6 +54,24 @@ export const SimplicityEditor = () => {
         },
       });
       disposeCompletionItemProvider = disposeRegisterCompletionItemProvider;
+
+      const { dispose: disposeSetLanguageConfiguration2 } = monaco.languages.setLanguageConfiguration(
+        terminalLng,
+        terminalLanguageOptions.languageConfigurations(monaco.languages)
+      );
+      disposeLanguageConfiguration2 = disposeSetLanguageConfiguration2;
+
+      // Register a tokens provider for the language
+      const { dispose: disposeSetMonarchTokensProvider2 } = monaco.languages.setMonarchTokensProvider(terminalLng, terminalLanguageOptions.tokenProviders);
+      disposeMonarchTokensProvider2 = disposeSetMonarchTokensProvider2;
+
+      const { dispose: disposeRegisterCompletionItemProvider2 } = monaco.languages.registerCompletionItemProvider(terminalLng, {
+        provideCompletionItems: (model: any, position: any) => {
+          const suggestions = terminalLanguageOptions.languageSuggestions(monaco.languages, model, position, termData);
+          return { suggestions: suggestions };
+        },
+      });
+      disposeCompletionItemProvider2 = disposeRegisterCompletionItemProvider2;
     }
 
     return () => {
@@ -52,6 +81,10 @@ export const SimplicityEditor = () => {
         disposeLanguageConfiguration();
         disposeMonarchTokensProvider();
         disposeCompletionItemProvider();
+
+        disposeLanguageConfiguration2();
+        disposeMonarchTokensProvider2();
+        disposeCompletionItemProvider2();
       }
     };
   }, [monaco, lng, termData]);
@@ -62,7 +95,7 @@ export const SimplicityEditor = () => {
       const newLines = lines.split("\n");
       const filteredLines = newLines.filter((x) => x !== "");
       setEditorValue(filteredLines);
-      console.log(filteredLines, "filtered");
+
       filteredLines.forEach((fl) => {
         if (fl.includes(" := ")) {
           const index = termData.findIndex((object) => object.word === fl.split(" ")[0]);
@@ -83,8 +116,10 @@ export const SimplicityEditor = () => {
         lastLine = newLines[newLines.length - 2];
         const cLine = lastLine.split(" ");
         if (cLine[0] !== "run") {
-          setResult("ERROR");
+          setErrorMessage("You have to use the `run` command to compile.");
+          setResult(undefined);
         } else {
+          setErrorMessage(" ");
           setResult(cLine[1]);
         }
       }
@@ -98,7 +133,7 @@ export const SimplicityEditor = () => {
         <EditorHeader>Editor</EditorHeader>
         <Editor
           key="editor-one"
-          height="60vh"
+          height="55vh"
           onChange={onChangeEditor}
           theme="simplicityTheme"
           defaultValue="// let's write some broken code 😈"
@@ -110,12 +145,13 @@ export const SimplicityEditor = () => {
           <Width60>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <Editor key="editor-two" height="70vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={editorOptions} defaultValue=">" language={lng} />
+              <Editor key="editor-two" height="45vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={terminalOptions} language={terminalLng} />
             </EditorSection>
           </Width60>
           <Width40>
             <EditorSection>
               <EditorHeader>Output</EditorHeader>
+              {errorMessage !== "" && <ErrorMessage>{errorMessage}</ErrorMessage>}
               {result}
             </EditorSection>
           </Width40>
@@ -129,21 +165,20 @@ export const SimplicityEditor = () => {
 
 const Wrapper = styled.section`
   background: #1e1e1e;
-  height: 30vh;
+  height: 35vh;
   display: flex;
   width: 100%;
 `;
 
 const Width60 = styled.section`
-  background: #1e1e1e;
-  height: 30vh;
+  height: 35vh;
   display: flex;
   width: 60%;
 `;
 
 const Width40 = styled.section`
-  background: #1e1e1e;
-  height: 30vh;
+  background: #181b1e;
+  height: 35vh;
   display: flex;
   width: 40%;
   color: orange;
@@ -152,7 +187,7 @@ const Width40 = styled.section`
 
 const EditorHeader = styled.section`
   background: rgb(77, 78, 79);
-  height: 0.7rem;
+  height: 1.7rem;
   display: flex;
   color: white;
   font-size: 13px;
@@ -164,4 +199,8 @@ const EditorSection = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+`;
+
+const ErrorMessage = styled.span`
+  color: red;
 `;
