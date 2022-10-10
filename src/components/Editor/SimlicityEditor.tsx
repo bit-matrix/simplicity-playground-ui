@@ -8,13 +8,13 @@ import styled from "styled-components";
 import editorOptions from "../../helper/editorOptions";
 import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
-import * as terminalLanguageOptions from "../../helper/terminalLanguageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
-import terminalOptions from "../../helper/terminalOptions";
+import ReactTerminal from "react-terminal-component";
+
+const lng = "simplicity";
 
 export const SimplicityEditor = () => {
-  const [lng] = useState("simplicity" + (Math.random() * 1000).toFixed(2));
-  const [terminalLng] = useState("simplicity" + (Math.random() * 1000).toFixed(2));
+  const [terminalLng] = useState("simplicity");
 
   const monaco = useMonaco();
   const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "case" }, { word: "injl" }, { word: "injr" }, { word: "take" }, { word: "drop" }, { word: "iden" }];
@@ -30,14 +30,9 @@ export const SimplicityEditor = () => {
   let disposeMonarchTokensProvider = () => {};
   let disposeCompletionItemProvider = () => {};
 
-  let disposeLanguageConfiguration2 = () => {};
-  let disposeMonarchTokensProvider2 = () => {};
-  let disposeCompletionItemProvider2 = () => {};
-
   useEffect(() => {
     if (monaco) {
       monaco.languages.register({ id: lng });
-      monaco.languages.register({ id: terminalLng });
 
       monaco.editor.defineTheme("simplicityTheme", themeOptions);
 
@@ -54,25 +49,8 @@ export const SimplicityEditor = () => {
           return { suggestions: suggestions };
         },
       });
+
       disposeCompletionItemProvider = disposeRegisterCompletionItemProvider;
-
-      const { dispose: disposeSetLanguageConfiguration2 } = monaco.languages.setLanguageConfiguration(
-        terminalLng,
-        terminalLanguageOptions.languageConfigurations(monaco.languages)
-      );
-      disposeLanguageConfiguration2 = disposeSetLanguageConfiguration2;
-
-      // Register a tokens provider for the language
-      const { dispose: disposeSetMonarchTokensProvider2 } = monaco.languages.setMonarchTokensProvider(terminalLng, terminalLanguageOptions.tokenProviders);
-      disposeMonarchTokensProvider2 = disposeSetMonarchTokensProvider2;
-
-      const { dispose: disposeRegisterCompletionItemProvider2 } = monaco.languages.registerCompletionItemProvider(terminalLng, {
-        provideCompletionItems: (model: any, position: any) => {
-          const suggestions = terminalLanguageOptions.languageSuggestions(monaco.languages, model, position, termData);
-          return { suggestions: suggestions };
-        },
-      });
-      disposeCompletionItemProvider2 = disposeRegisterCompletionItemProvider2;
     }
 
     return () => {
@@ -82,13 +60,9 @@ export const SimplicityEditor = () => {
         disposeLanguageConfiguration();
         disposeMonarchTokensProvider();
         disposeCompletionItemProvider();
-
-        disposeLanguageConfiguration2();
-        disposeMonarchTokensProvider2();
-        disposeCompletionItemProvider2();
       }
     };
-  }, [monaco, lng, termData]);
+  }, [monaco, termData]);
 
   const onChangeEditor = (value: string | undefined, ev: Monaco.editor.IModelContentChangedEvent) => {
     if (value) {
@@ -108,24 +82,24 @@ export const SimplicityEditor = () => {
     }
   };
 
-  const onChangeEditorTwo = (value: string | undefined, event: Monaco.editor.IModelContentChangedEvent) => {
-    if (value) {
-      let lastLine = "";
-      const lines: string = value;
-      const newLines = lines.split("\n");
-      if (event.changes[0].text.charCodeAt(0) === 10) {
-        lastLine = newLines[newLines.length - 2];
-        const cLine = lastLine.split(" ");
-        if (cLine[0] !== "run") {
-          setErrorMessage("You have to use the `run` command to compile.");
-          setResult(undefined);
-        } else {
-          setErrorMessage(" ");
-          setResult(cLine[1]);
-        }
-      }
-    }
-  };
+  // const onChangeEditorTwo = (value: string | undefined, event: Monaco.editor.IModelContentChangedEvent) => {
+  //   if (value) {
+  //     let lastLine = "";
+  //     const lines: string = value;
+  //     const newLines = lines.split("\n");
+  //     if (event.changes[0].text.charCodeAt(0) === 10) {
+  //       lastLine = newLines[newLines.length - 2];
+  //       const cLine = lastLine.split(" ");
+  //       if (cLine[0] !== "run") {
+  //         setErrorMessage("You have to use the `run` command to compile.");
+  //         setResult(undefined);
+  //       } else {
+  //         setErrorMessage(" ");
+  //         setResult(cLine[1]);
+  //       }
+  //     }
+  //   }
+  // };
 
   if (monaco != null) {
     return (
@@ -134,28 +108,21 @@ export const SimplicityEditor = () => {
         <EditorHeader>Editor</EditorHeader>
         <Editor
           key="editor-one"
-          height="55vh"
+          height="50vh"
           onChange={onChangeEditor}
           theme="simplicityTheme"
           defaultValue="// let's write some broken code 😈"
           options={editorOptions}
-          language={lng}
+          language={""}
         />
 
         <Wrapper>
-          <Width60>
+          <TerminalSection>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <Editor key="editor-two" height="45vh" onChange={onChangeEditorTwo} theme="simplicityTheme" options={terminalOptions} language={terminalLng} />
+              <ReactTerminal promptSymbol="₿" autoFocus={false} />
             </EditorSection>
-          </Width60>
-          <Width40>
-            <EditorSection>
-              <EditorHeader>Output</EditorHeader>
-              {errorMessage !== "" && <ErrorMessage>{errorMessage}</ErrorMessage>}
-              {result}
-            </EditorSection>
-          </Width40>
+          </TerminalSection>
         </Wrapper>
       </>
     );
@@ -166,24 +133,15 @@ export const SimplicityEditor = () => {
 
 const Wrapper = styled.section`
   background: #1e1e1e;
-  height: 35vh;
+  height: 40vh;
   display: flex;
   width: 100%;
 `;
 
-const Width60 = styled.section`
-  height: 35vh;
+const TerminalSection = styled.section`
+  height: 40vh;
   display: flex;
-  width: 60%;
-`;
-
-const Width40 = styled.section`
-  background: #181b1e;
-  height: 35vh;
-  display: flex;
-  width: 40%;
-  color: orange;
-  font-size: 14px;
+  width: 100%;
 `;
 
 const EditorHeader = styled.section`
