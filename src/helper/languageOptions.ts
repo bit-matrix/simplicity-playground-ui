@@ -82,6 +82,7 @@ const tokenProviders: Monaco.languages.IMonarchLanguage = {
   ],
   binary: /[01]+(?:[01_]*[01]+)*/,
   hex: /[0-9a-fA-F]_*(?:_*[0-9a-fA-F]_*[0-9a-fA-F]_*)*[0-9a-fA-F]/,
+  syntax: /:=/,
   terms: ["unit", "comp", "pair", "case", "injl", "injr", "take", "drop", "iden"],
   tokenizer: {
     root: [
@@ -96,6 +97,7 @@ const tokenProviders: Monaco.languages.IMonarchLanguage = {
       ],
       [/0x(@hex)/, "literal.hex"], // HexLiteral
       [/(@bigint)/, "literal.bigint"], // BigIntLiteral
+      [/(@funcEqual)/, "literal.funcEqual"], // BigIntLiteral
       { include: "@whitespace" },
       [/[<>)]|\$\(/, "@brackets"],
       [/"/, "string", "@string_double"], // UTF8Literal

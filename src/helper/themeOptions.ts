@@ -11,6 +11,7 @@ const themeOptions: Monaco.editor.IStandaloneThemeData = {
     { token: "literal.bigint", foreground: "#87edae" },
     { token: "literal.hex", foreground: "#034a03" },
     { token: "literal.binary", foreground: "#ab64de" },
+    { token: "literal.syntax", foreground: "#ffffff" },
     { token: "invalid", foreground: "#fa0c18" },
     { token: "comment", foreground: "#6A9955" },
     { token: "", background: "#181B1E" },
