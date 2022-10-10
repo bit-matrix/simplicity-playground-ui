@@ -10,15 +10,31 @@ import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
 import ReactTerminal from "react-terminal-component";
+import { EmulatorState, OutputFactory, CommandMapping, defaultCommandMapping } from "javascript-terminal";
 
 const lng = "simplicity";
 
 export const SimplicityEditor = () => {
-  const [terminalLng] = useState("simplicity");
-
   const monaco = useMonaco();
   const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "case" }, { word: "injl" }, { word: "injr" }, { word: "take" }, { word: "drop" }, { word: "iden" }];
 
+  const customState = EmulatorState.create({
+    commandMapping: CommandMapping.create({
+      ...defaultCommandMapping,
+      run: {
+        function: (state: any, opts: any) => {
+          const input = opts.join(" ");
+
+          return {
+            output: OutputFactory.makeTextOutput(input),
+          };
+        },
+        optDef: {},
+      },
+    }),
+  });
+
+  const [terminalState, setTerminalState] = useState({ emulatorState: customState, inputStr: "" });
   const [termData, setTermData] = useState(terms);
 
   const [editorValue, setEditorValue] = useState<Array<string>>([]);
@@ -82,25 +98,6 @@ export const SimplicityEditor = () => {
     }
   };
 
-  // const onChangeEditorTwo = (value: string | undefined, event: Monaco.editor.IModelContentChangedEvent) => {
-  //   if (value) {
-  //     let lastLine = "";
-  //     const lines: string = value;
-  //     const newLines = lines.split("\n");
-  //     if (event.changes[0].text.charCodeAt(0) === 10) {
-  //       lastLine = newLines[newLines.length - 2];
-  //       const cLine = lastLine.split(" ");
-  //       if (cLine[0] !== "run") {
-  //         setErrorMessage("You have to use the `run` command to compile.");
-  //         setResult(undefined);
-  //       } else {
-  //         setErrorMessage(" ");
-  //         setResult(cLine[1]);
-  //       }
-  //     }
-  //   }
-  // };
-
   if (monaco != null) {
     return (
       <>
@@ -120,7 +117,18 @@ export const SimplicityEditor = () => {
           <TerminalSection>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <ReactTerminal promptSymbol="₿" autoFocus={false} />
+              <ReactTerminal
+                promptSymbol="₿"
+                inputStr={terminalState.inputStr}
+                autoFocus={false}
+                emulatorState={terminalState.emulatorState}
+                onInputChange={(data: string) => {
+                  setTerminalState({ ...terminalState, inputStr: data });
+                }}
+                onStateChange={(data: any) => {
+                  console.log("state", data);
+                }}
+              />
             </EditorSection>
           </TerminalSection>
         </Wrapper>
