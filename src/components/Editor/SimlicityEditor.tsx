@@ -113,7 +113,7 @@ export const SimplicityEditor = () => {
           theme="simplicityTheme"
           defaultValue="// let's write some broken code 😈"
           options={editorOptions}
-          language={""}
+          language={lng}
         />
 
         <Wrapper>
