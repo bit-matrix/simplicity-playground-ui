@@ -97,7 +97,7 @@ const tokenProviders: Monaco.languages.IMonarchLanguage = {
       ],
       [/0x(@hex)/, "literal.hex"], // HexLiteral
       [/(@bigint)/, "literal.bigint"], // BigIntLiteral
-      [/(@funcEqual)/, "literal.funcEqual"], // BigIntLiteral
+      [/(@syntax)/, "literal.syntax"], // BigIntLiteral
       { include: "@whitespace" },
       [/[<>)]|\$\(/, "@brackets"],
       [/"/, "string", "@string_double"], // UTF8Literal
