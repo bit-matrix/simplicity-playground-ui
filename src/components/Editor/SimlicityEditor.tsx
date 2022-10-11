@@ -9,6 +9,7 @@ import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
 import { ReactTerminal } from "react-terminal";
+import { programCompiler } from "@script-wiz/simplicity-playground-lib";
 
 const lng = "simplicity";
 
@@ -101,7 +102,8 @@ export const SimplicityEditor = () => {
   };
 
   const compile = (input: string) => {
-    return input;
+    const result = programCompiler(input, programData);
+    return result;
   };
 
   const commands = {
