@@ -4,13 +4,16 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { CustomProvider } from "rsuite";
+import { TerminalContextProvider } from "react-terminal";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
-    <CustomProvider theme="dark">
-      <App />
-    </CustomProvider>
+    <TerminalContextProvider>
+      <CustomProvider theme="dark">
+        <App />
+      </CustomProvider>
+    </TerminalContextProvider>
   </React.StrictMode>
 );
 

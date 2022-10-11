@@ -2,16 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useEffect, useState } from "react";
-import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import styled from "styled-components";
 import editorOptions from "../../helper/editorOptions";
 import themeOptions from "../../helper/themeOptions";
 import * as languageOptions from "../../helper/languageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
-import ReactTerminal from "react-terminal-component";
-import { EmulatorState, OutputFactory, CommandMapping, defaultCommandMapping } from "javascript-terminal";
-import { parse } from "path";
+import { ReactTerminal } from "react-terminal";
 
 const lng = "simplicity";
 
@@ -25,22 +22,6 @@ const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "ca
 export const SimplicityEditor = () => {
   const monaco = useMonaco();
 
-  const customState = EmulatorState.create({
-    commandMapping: CommandMapping.create({
-      ...defaultCommandMapping,
-      run: {
-        function: (state: any, opts: any) => {
-          const input = opts.join(" ");
-          return {
-            output: OutputFactory.makeTextOutput(input),
-          };
-        },
-        optDef: {},
-      },
-    }),
-  });
-
-  const [terminalState, setTerminalState] = useState({ emulatorState: customState, inputStr: "" });
   const [programData, setProgramData] = useState<SimplicityData[]>([]);
   const [termList, setTermList] = useState<{ word: string }[]>(terms);
 
@@ -119,6 +100,14 @@ export const SimplicityEditor = () => {
     }
   };
 
+  const compile = (input: string) => {
+    return input;
+  };
+
+  const commands = {
+    run: (data: any) => compile(data),
+  };
+
   if (monaco != null) {
     return (
       <>
@@ -140,18 +129,7 @@ export const SimplicityEditor = () => {
           <TerminalSection>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <ReactTerminal
-                promptSymbol="₿"
-                inputStr={terminalState.inputStr}
-                autoFocus={false}
-                emulatorState={terminalState.emulatorState}
-                onInputChange={(data: string) => {
-                  setTerminalState({ ...terminalState, inputStr: data });
-                }}
-                onStateChange={(data: any) => {
-                  console.log("state", data);
-                }}
-              />
+              <ReactTerminal prompt="₿" showControlBar={false} theme="dark" commands={commands} />
             </EditorSection>
           </TerminalSection>
         </Wrapper>
