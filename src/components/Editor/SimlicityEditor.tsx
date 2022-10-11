@@ -11,12 +11,19 @@ import * as languageOptions from "../../helper/languageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
 import ReactTerminal from "react-terminal-component";
 import { EmulatorState, OutputFactory, CommandMapping, defaultCommandMapping } from "javascript-terminal";
+import { parse } from "path";
 
 const lng = "simplicity";
 
+type SimplicityData = {
+  term: string;
+  program: string;
+};
+
+const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "case" }, { word: "injl" }, { word: "injr" }, { word: "take" }, { word: "drop" }, { word: "iden" }];
+
 export const SimplicityEditor = () => {
   const monaco = useMonaco();
-  const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "case" }, { word: "injl" }, { word: "injr" }, { word: "take" }, { word: "drop" }, { word: "iden" }];
 
   const customState = EmulatorState.create({
     commandMapping: CommandMapping.create({
@@ -24,7 +31,6 @@ export const SimplicityEditor = () => {
       run: {
         function: (state: any, opts: any) => {
           const input = opts.join(" ");
-
           return {
             output: OutputFactory.makeTextOutput(input),
           };
@@ -35,10 +41,8 @@ export const SimplicityEditor = () => {
   });
 
   const [terminalState, setTerminalState] = useState({ emulatorState: customState, inputStr: "" });
-  const [termData, setTermData] = useState(terms);
-
-  const [editorValue, setEditorValue] = useState<Array<string>>([]);
-  const [result, setResult] = useState<string>();
+  const [programData, setProgramData] = useState<SimplicityData[]>([]);
+  const [termList, setTermList] = useState<{ word: string }[]>(terms);
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -61,7 +65,7 @@ export const SimplicityEditor = () => {
 
       const { dispose: disposeRegisterCompletionItemProvider } = monaco.languages.registerCompletionItemProvider(lng, {
         provideCompletionItems: (model: any, position: any) => {
-          const suggestions = languageOptions.languageSuggestions(monaco.languages, model, position, termData);
+          const suggestions = languageOptions.languageSuggestions(monaco.languages, model, position, termList);
           return { suggestions: suggestions };
         },
       });
@@ -71,29 +75,46 @@ export const SimplicityEditor = () => {
 
     return () => {
       if (monaco !== undefined) {
-        // monaco.editor.getModels().forEach((model) => model.dispose());
-
         disposeLanguageConfiguration();
         disposeMonarchTokensProvider();
         disposeCompletionItemProvider();
       }
     };
-  }, [monaco, termData]);
+  }, [monaco, termList]);
 
-  const onChangeEditor = (value: string | undefined, ev: Monaco.editor.IModelContentChangedEvent) => {
-    if (value) {
+  const onChangeEditor = (value: string | undefined) => {
+    if (value && value !== "") {
       const lines: string = value;
       const newLines = lines.split("\n");
-      const filteredLines = newLines.filter((x) => x !== "");
-      setEditorValue(filteredLines);
+      const filteredLines = newLines.filter((x) => x !== "" && !x.startsWith("//"));
+      let finalData: SimplicityData[] = [];
 
       filteredLines.forEach((fl) => {
-        if (fl.includes(" := ")) {
-          const index = termData.findIndex((object) => object.word === fl.split(" ")[0]);
-          if (index === -1) {
-            setTermData([...termData, { word: fl.split(" ")[0] }]);
+        const parsedData = fl.split(" ");
+
+        if (parsedData.length > 2) {
+          const isFunction = parsedData[1] === ":=";
+          if (isFunction) {
+            const term = parsedData[0];
+            const program = parsedData.slice(2).join("");
+
+            const functionIndex = finalData.findIndex((pd) => pd.term === term);
+
+            if (functionIndex > -1) {
+              setErrorMessage("Duplicate term!");
+            } else {
+              const result = { term, program };
+              finalData.push(result);
+            }
           }
         }
+
+        const newTerms = finalData.map((fd) => {
+          return { word: fd.term };
+        });
+
+        setTermList([...terms, ...newTerms]);
+        setProgramData(finalData);
       });
     }
   };
@@ -106,7 +127,9 @@ export const SimplicityEditor = () => {
         <Editor
           key="editor-one"
           height="50vh"
-          onChange={onChangeEditor}
+          onChange={(value: string | undefined) => {
+            onChangeEditor(value);
+          }}
           theme="simplicityTheme"
           defaultValue="// let's write some broken code 😈"
           options={editorOptions}
