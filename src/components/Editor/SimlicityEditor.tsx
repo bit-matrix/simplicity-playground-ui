@@ -10,6 +10,7 @@ import * as languageOptions from "../../helper/languageOptions";
 import { SimplicityEditorNavBar } from "./SimplicityEditorNavBar";
 import { ReactTerminal } from "react-terminal";
 import { programCompiler } from "@script-wiz/simplicity-playground-lib";
+import { initialEditorValue } from "./InitialEditorValue";
 
 const lng = "simplicity";
 
@@ -23,7 +24,10 @@ const terms = [{ word: "unit" }, { word: "comp" }, { word: "pair" }, { word: "ca
 export const SimplicityEditor = () => {
   const monaco = useMonaco();
 
-  const [programData, setProgramData] = useState<SimplicityData[]>([]);
+  const [programData, setProgramData] = useState<SimplicityData[]>([
+    { program: "comp(pair(iden)(unit))(case(injr(unit))(injl(unit)))", term: "not" },
+    { program: "case(drop(pair(injl(unit))(iden)))(drop(pair(iden)(comp(pair(iden)(unit))(case(injr(unit))(injl(unit))))))", term: "half-adder" },
+  ]);
   const [termList, setTermList] = useState<{ word: string }[]>(terms);
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -105,6 +109,7 @@ export const SimplicityEditor = () => {
   const compile = (input: string) => {
     try {
       if (errorMessage) return errorMessage;
+
       return programCompiler(input, programData);
     } catch (error) {
       return error;
@@ -127,7 +132,7 @@ export const SimplicityEditor = () => {
             onChangeEditor(value);
           }}
           theme="simplicityTheme"
-          defaultValue="// let's write some broken code 😈"
+          defaultValue={initialEditorValue}
           options={editorOptions}
           language={lng}
         />
@@ -138,7 +143,7 @@ export const SimplicityEditor = () => {
               <EditorHeader>Terminal</EditorHeader>
               <ReactTerminal
                 prompt="₿"
-                welcomeMessage="sample command : run half-adder<σR(<>),σL(<>)>    Bitcoin/Simplicity Editor"
+                welcomeMessage="sample command : run half-adder <σR(<>),σL(<>)>    Bitcoin/Simplicity Editor"
                 showControlBar={false}
                 theme="dark"
                 commands={commands}
