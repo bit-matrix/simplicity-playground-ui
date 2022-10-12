@@ -70,6 +70,7 @@ export const SimplicityEditor = () => {
       const newLines = lines.split("\n");
       const filteredLines = newLines.filter((x) => x !== "" && !x.startsWith("//"));
       let finalData: SimplicityData[] = [];
+      setErrorMessage("");
 
       filteredLines.forEach((fl) => {
         const parsedData = fl.split(" ");
@@ -102,8 +103,12 @@ export const SimplicityEditor = () => {
   };
 
   const compile = (input: string) => {
-    const result = programCompiler(input, programData);
-    return result;
+    try {
+      if (errorMessage) return errorMessage;
+      return programCompiler(input, programData);
+    } catch (error) {
+      return error;
+    }
   };
 
   const commands = {
