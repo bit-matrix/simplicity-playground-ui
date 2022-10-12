@@ -136,7 +136,13 @@ export const SimplicityEditor = () => {
           <TerminalSection>
             <EditorSection>
               <EditorHeader>Terminal</EditorHeader>
-              <ReactTerminal prompt="₿" showControlBar={false} theme="dark" commands={commands} />
+              <ReactTerminal
+                prompt="₿"
+                welcomeMessage="sample command : run half-adder<σR(<>),σL(<>)>    Bitcoin/Simplicity Editor"
+                showControlBar={false}
+                theme="dark"
+                commands={commands}
+              />
             </EditorSection>
           </TerminalSection>
         </Wrapper>
