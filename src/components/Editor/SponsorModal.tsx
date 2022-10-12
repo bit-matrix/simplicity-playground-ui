@@ -29,7 +29,6 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({ show, close }) => {
         <Nav.Item eventKey="lbtc">L-BTC</Nav.Item>
       </Nav>
       <Modal.Body>
-        <SponsorModalBody>{activeSponsorType === "btc" ? <img src={btcQr} alt="btcqr" /> : <img src={liquidQr} alt="lbtcqr" />}</SponsorModalBody>
         <div>
           <InputGroup>
             <SponsorModalAddressInput
@@ -57,13 +56,6 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({ show, close }) => {
     </Modal>
   );
 };
-
-const SponsorModalBody = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  margin-bottom: 1rem;
-`;
 
 const SponsorModalAddressInput = styled(Input)`
   width: 100%;
