@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { Button, Input, InputGroup, Modal, Nav, Tooltip, Whisper } from "rsuite";
 import styled from "styled-components";
 import CopyIcon from "../../images/Icons/Copy";
-import btcQr from "../../images/qrImages/btc.png";
-import liquidQr from "../../images/qrImages/liquid.png";
 
 interface SponsorModalProps {
   show: boolean;
