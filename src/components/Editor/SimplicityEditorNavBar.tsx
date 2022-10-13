@@ -105,7 +105,7 @@ const ScriptEditorHeaderIconItem = styled.a`
 const ScriptWizLogo = styled.img.attrs(() => ({
   src: logo,
 }))`
-  width: 3rem;
+  width: 2.7rem;
   margin-left: 1rem;
 `;
 const SponsorButton = styled.div`
